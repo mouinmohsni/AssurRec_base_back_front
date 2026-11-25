@@ -1,0 +1,33 @@
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: assurrec
+      MYSQL_USER: assurrec
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Définir MYSQL_PASSWORD dans .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Définir MYSQL_ROOT_PASSWORD dans .env}
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - assurrec_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root --password=$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  app:
+    build: .
+    environment:
+      DATABASE_URL: mysql://assurrec:${MYSQL_PASSWORD}@mysql:3306/assurrec
+      PORT: 3000
+      NODE_ENV: production
+      COOKIE_MODE: local-http
+      DEMO_ENABLED: "true"
+      DEMO_PASSWORD: ${DEMO_PASSWORD:?Définir DEMO_PASSWORD dans .env}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3000:3000"
+volumes:
+  assurrec_db:

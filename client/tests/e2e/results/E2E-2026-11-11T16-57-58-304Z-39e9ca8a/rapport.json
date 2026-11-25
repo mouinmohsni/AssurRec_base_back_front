@@ -1,0 +1,71 @@
+{
+  "runId": "E2E-2026-11-11T16-57-58-304Z-39e9ca8a",
+  "status": "failed",
+  "startedAt": "2026-11-11T16:57:58.306Z",
+  "steps": [
+    {
+      "label": "Ouvrir AssurRec sur la page de connexion",
+      "startedAt": "2026-11-11T16:58:00.114Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T16:58:07.317Z"
+    },
+    {
+      "label": "Saisir l'e-mail du profil admin",
+      "startedAt": "2026-11-11T16:58:07.319Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T16:58:12.699Z"
+    },
+    {
+      "label": "Saisir le mot de passe de démonstration (admin)",
+      "startedAt": "2026-11-11T16:58:12.700Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T16:58:17.973Z"
+    },
+    {
+      "label": "Connexion admin et affichage du tableau de bord",
+      "startedAt": "2026-11-11T16:58:17.973Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T16:58:24.081Z"
+    },
+    {
+      "label": "Déconnexion administrateur et retour à la page de connexion",
+      "startedAt": "2026-11-11T16:58:24.081Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T16:58:29.273Z"
+    },
+    {
+      "label": "Saisir l'e-mail du profil manager",
+      "startedAt": "2026-11-11T16:58:29.275Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T16:58:34.621Z"
+    },
+    {
+      "label": "Saisir le mot de passe de démonstration (manager)",
+      "startedAt": "2026-11-11T16:58:34.622Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T16:58:39.859Z"
+    },
+    {
+      "label": "Connexion manager et affichage du tableau de bord",
+      "startedAt": "2026-11-11T16:58:39.862Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T16:58:45.485Z"
+    },
+    {
+      "label": "Gestionnaire : repérer une échéance dépassée sans dossier",
+      "startedAt": "2026-11-11T16:58:45.486Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T16:58:51.880Z"
+    },
+    {
+      "label": "Gestionnaire : ouvrir le formulaire Nouveau dossier",
+      "startedAt": "2026-11-11T16:58:51.882Z",
+      "status": "failed",
+      "error": "stale element reference: stale element not found in the current frame\n  (Session info: chrome=157.0.8103.50)"
+    }
+  ],
+  "installmentId": 55,
+  "failedStep": "Gestionnaire : ouvrir le formulaire Nouveau dossier",
+  "error": "stale element reference: stale element not found in the current frame\n  (Session info: chrome=157.0.8103.50)",
+  "finishedAt": "2026-11-11T16:58:57.586Z"
+}

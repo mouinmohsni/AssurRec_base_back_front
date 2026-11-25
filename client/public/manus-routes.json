@@ -1,0 +1,15 @@
+{
+  "routes": [
+    { "path": "/connexion", "title": "Connexion" },
+    { "path": "/", "title": "Tableau de bord" },
+    { "path": "/assures", "title": "Assurés" },
+    { "path": "/contrats", "title": "Contrats" },
+    { "path": "/echeances", "title": "Échéances" },
+    { "path": "/dossiers", "title": "Dossiers de recouvrement" },
+    { "path": "/dossiers/:id", "title": "Détail du dossier" },
+    { "path": "/paiements", "title": "Paiements" },
+    { "path": "/relances", "title": "Relances fictives" },
+    { "path": "/audit", "title": "Journal d’audit" },
+    { "path": "/utilisateurs", "title": "Utilisateurs" }
+  ]
+}

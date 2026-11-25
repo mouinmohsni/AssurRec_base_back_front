@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-11T13:58:52.805Z",
+  "helpers": "OK",
+  "roles": [
+    "admin",
+    "manager",
+    "agent"
+  ],
+  "httpCalls": 37,
+  "csrfLogout": true,
+  "manifestPages": 11,
+  "businessWrites": false,
+  "note": "Contrôle de construction via Node/proxy, pas une campagne E2E navigateur. Connexions/déconnexions créent les traces de session habituelles.",
+  "npmCi": "OK",
+  "eslint": "OK sans avertissement",
+  "build": "OK",
+  "typescriptInClient": false,
+  "backendSourceUnchanged": true,
+  "readOnlyReview": "terminée, défaut confirmé de relance clôturée corrigé côté client, déclaration des routes conforme",
+  "scope": "Contrôles de construction, pas campagne E2E navigateur/ISO.",
+  "jsxFiles": 53
+}

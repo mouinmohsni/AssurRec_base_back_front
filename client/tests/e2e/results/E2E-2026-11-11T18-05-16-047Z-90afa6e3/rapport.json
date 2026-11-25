@@ -1,0 +1,199 @@
+{
+  "runId": "E2E-2026-11-11T18-05-16-047Z-90afa6e3",
+  "status": "passed",
+  "startedAt": "2026-11-11T18:05:16.050Z",
+  "steps": [
+    {
+      "label": "Ouvrir AssurRec sur la page de connexion",
+      "startedAt": "2026-11-11T18:05:18.869Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:05:28.867Z"
+    },
+    {
+      "label": "Saisir l'e-mail du profil admin",
+      "startedAt": "2026-11-11T18:05:28.869Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:05:34.264Z"
+    },
+    {
+      "label": "Saisir le mot de passe de démonstration (admin)",
+      "startedAt": "2026-11-11T18:05:34.265Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:05:39.586Z"
+    },
+    {
+      "label": "Connexion admin et affichage du tableau de bord",
+      "startedAt": "2026-11-11T18:05:39.592Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:05:45.879Z"
+    },
+    {
+      "label": "Déconnexion administrateur et retour à la page de connexion",
+      "startedAt": "2026-11-11T18:05:45.882Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:05:51.427Z"
+    },
+    {
+      "label": "Saisir l'e-mail du profil manager",
+      "startedAt": "2026-11-11T18:05:51.431Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:05:56.988Z"
+    },
+    {
+      "label": "Saisir le mot de passe de démonstration (manager)",
+      "startedAt": "2026-11-11T18:05:56.990Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:06:02.445Z"
+    },
+    {
+      "label": "Connexion manager et affichage du tableau de bord",
+      "startedAt": "2026-11-11T18:06:02.449Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:06:08.613Z"
+    },
+    {
+      "label": "Gestionnaire : repérer une échéance dépassée sans dossier",
+      "startedAt": "2026-11-11T18:06:08.613Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:06:15.795Z"
+    },
+    {
+      "label": "Gestionnaire : ouvrir le formulaire Nouveau dossier",
+      "startedAt": "2026-11-11T18:06:15.797Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:06:22.425Z"
+    },
+    {
+      "label": "Gestionnaire : rechercher l'échéance dans la liste paginée",
+      "startedAt": "2026-11-11T18:06:22.427Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:06:28.435Z"
+    },
+    {
+      "label": "Gestionnaire : affecter le dossier à l'agent",
+      "startedAt": "2026-11-11T18:06:28.523Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:06:34.283Z"
+    },
+    {
+      "label": "Gestionnaire : choisir la priorité normale et saisir les notes",
+      "startedAt": "2026-11-11T18:06:34.283Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:06:40.551Z"
+    },
+    {
+      "label": "Gestionnaire : créer le dossier et vérifier son affectation",
+      "startedAt": "2026-11-11T18:06:40.553Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:06:47.816Z"
+    },
+    {
+      "label": "Déconnexion gestionnaire et retour à la page de connexion",
+      "startedAt": "2026-11-11T18:06:47.817Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:06:53.364Z"
+    },
+    {
+      "label": "Saisir l'e-mail du profil agent",
+      "startedAt": "2026-11-11T18:06:53.366Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:06:58.779Z"
+    },
+    {
+      "label": "Saisir le mot de passe de démonstration (agent)",
+      "startedAt": "2026-11-11T18:06:58.781Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:07:04.116Z"
+    },
+    {
+      "label": "Connexion agent et affichage du tableau de bord",
+      "startedAt": "2026-11-11T18:07:04.119Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:07:09.756Z"
+    },
+    {
+      "label": "Agent : rechercher son dossier affecté et ouvrir la fiche",
+      "startedAt": "2026-11-11T18:07:09.760Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:07:16.802Z"
+    },
+    {
+      "label": "Agent : prendre le dossier en charge, statut En cours",
+      "startedAt": "2026-11-11T18:07:16.808Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:07:22.638Z"
+    },
+    {
+      "label": "Agent : ouvrir le formulaire de relance du dossier",
+      "startedAt": "2026-11-11T18:07:22.640Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:07:28.078Z"
+    },
+    {
+      "label": "Agent : choisir le canal Téléphone et saisir l'objet",
+      "startedAt": "2026-11-11T18:07:28.080Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:07:34.015Z"
+    },
+    {
+      "label": "Agent : saisir la consigne et choisir Contact fictif consigné",
+      "startedAt": "2026-11-11T18:07:34.020Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:07:40.248Z"
+    },
+    {
+      "label": "Agent : enregistrer la relance et vérifier sa persistance",
+      "startedAt": "2026-11-11T18:07:40.250Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:07:45.864Z"
+    },
+    {
+      "label": "Déconnexion agent et retour à la page de connexion",
+      "startedAt": "2026-11-11T18:07:45.866Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:07:51.338Z"
+    },
+    {
+      "label": "Saisir l'e-mail du profil manager",
+      "startedAt": "2026-11-11T18:07:51.340Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:07:56.898Z"
+    },
+    {
+      "label": "Saisir le mot de passe de démonstration (manager)",
+      "startedAt": "2026-11-11T18:07:56.899Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:08:02.166Z"
+    },
+    {
+      "label": "Connexion manager et affichage du tableau de bord",
+      "startedAt": "2026-11-11T18:08:02.168Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:08:07.809Z"
+    },
+    {
+      "label": "Gestionnaire : retrouver le dossier, son statut et sa relance",
+      "startedAt": "2026-11-11T18:08:07.810Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:08:14.618Z"
+    },
+    {
+      "label": "Gestionnaire : vérifier les auteurs et dates dans l'historique",
+      "startedAt": "2026-11-11T18:08:14.620Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:08:20.149Z"
+    },
+    {
+      "label": "Déconnexion gestionnaire final et retour à la page de connexion",
+      "startedAt": "2026-11-11T18:08:20.152Z",
+      "status": "passed",
+      "finishedAt": "2026-11-11T18:08:25.861Z"
+    }
+  ],
+  "installmentId": 55,
+  "caseId": 13,
+  "caseReference": "DOS-1794420400938-f34fdc6d",
+  "reminderId": 13,
+  "reminderSubject": "Relance téléphonique E2E-2026-11-11T18-05-16-047Z-90afa6e3",
+  "finishedAt": "2026-11-11T18:08:25.862Z"
+}

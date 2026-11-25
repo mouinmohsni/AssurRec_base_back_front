@@ -1,0 +1,50 @@
+{
+  "version": "2.0.0",
+  "nature": "Vérifications de construction, pas campagne ISO complète",
+  "backend": "JavaScript ESM + Sequelize/MySQL + Express",
+  "nodeSyntaxAndLintFiles": 88,
+  "npmCi": "réussi",
+  "rootProductionScripts": "build et démarrage exécutés sous Linux",
+  "baselineChecks": [
+    "Santé HTTP et préparation de la base",
+    "Ressources métier refusées sans authentification",
+    "Connexion réelle des trois profils et CSRF stable",
+    "Administration et audit global refusés à l’agent",
+    "Lecture des listes paginées, détails métier et agrégats du dashboard",
+    "Création assurés–contrats–échéances–dossier et accès limité à l’affectation",
+    "Clôture refusée tant qu’une dette existe ; transition autorisée",
+    "Paiement partiel réel, calcul du solde et surpaiement refusé",
+    "Clôture à solde nul, correction réservée gestionnaire, réouverture et audit",
+    "Déconnexion des sessions de vérification"
+  ],
+  "mvcChecks": [
+    "Filtres imbriqués ORM, recherche, pagination et DTO camelCase",
+    "Recherche réellement filtrée et scope agent non remplaçable par un filtre",
+    "Identifiants/périodes/enums invalides refusés et CORS à liste explicite",
+    "CRUD référentiels, dépendances, dates, doublon dossier, affectation et promesse contrôlés",
+    "CRUD relances, consigne immuable, double annulation refusée et audit ISO",
+    "CRUD utilisateurs, désactivation tracée et protection dernier admin/agent affecté"
+  ],
+  "npmAuditKnownAlerts": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "frontendSources": "client/src inchangé",
+  "ports": {
+    "apiDevelopment": 4000,
+    "clientDevelopment": 3000,
+    "singleProcessProduction": 3000
+  },
+  "notExecuted": [
+    "Campagne de tests du module",
+    "E2E navigateur",
+    "Charge/concurrence",
+    "Docker",
+    "Windows",
+    "Couverture/certification ISO"
+  ]
+}
