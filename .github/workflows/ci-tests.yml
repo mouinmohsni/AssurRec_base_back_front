@@ -150,9 +150,20 @@ jobs:
           docker compose exec -T assurrec-api node database/migrate.js
           docker compose exec -T assurrec-api node database/seed.js
 
+      - name: Attendre la préparation de l'API (migration marquée)
+        run: |
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://localhost:8080/api/health > /tmp/health.json; then
+              cat /tmp/health.json; exit 0
+            fi
+            sleep 2
+          done
+          echo "L'API n'a pas atteint /api/health en 60 s."
+          docker compose ps
+          exit 1
+
       - name: Vérifier l'API à travers le proxy Nginx du client
         run: |
-          curl --fail --silent http://localhost:8080/api/health
           curl --fail --silent -o /dev/null -w "client=%{http_code}\n" http://localhost:8080/
 
       - name: Tests d'intégration API avec Newman
@@ -162,7 +173,7 @@ jobs:
             --env-var "demoPassword=${DEMO_PASSWORD}" \
             --reporters cli,json \
             --reporter-json-export newman-result.json \
-            --bail-on-error
+            --bail
 
       - name: Conserver le résultat Newman comme preuve
         if: always()
