@@ -29,3 +29,4 @@ EXPOSE 4000
 # Démarrer uniquement l'API.
 # Aucune migration ni insertion de données automatique.
 CMD ["node", "src/index.js"]
+

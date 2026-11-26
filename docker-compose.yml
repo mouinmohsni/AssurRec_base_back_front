@@ -1,13 +1,18 @@
+name: assurrec
+
 services:
   mysql:
     image: mysql:8.0
+    container_name: assurrec-mysql
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: assurrec
       MYSQL_USER: assurrec
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Définir MYSQL_PASSWORD dans .env}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Définir MYSQL_ROOT_PASSWORD dans .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Definir MYSQL_PASSWORD dans .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Definir MYSQL_ROOT_PASSWORD dans .env}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     ports:
-      - "127.0.0.1:3306:3306"
+      - "127.0.0.1:3307:3306"
     volumes:
       - assurrec_db:/var/lib/mysql
     healthcheck:
@@ -15,19 +20,46 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
-  app:
-    build: .
+
+  assurrec-api:
+    build:
+      context: ./server
+    image: assurrec-api:2.0.0
+    container_name: assurrec-api
+    restart: unless-stopped
     environment:
-      DATABASE_URL: mysql://assurrec:${MYSQL_PASSWORD}@mysql:3306/assurrec
-      PORT: 3000
       NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: mysql://assurrec:${MYSQL_PASSWORD}@mysql:3306/assurrec
+      DB_TLS: "false"
+      DB_CONNECTION_LIMIT: "10"
       COOKIE_MODE: local-http
+      CORS_ORIGINS: http://localhost:8080,http://127.0.0.1:8080
       DEMO_ENABLED: "true"
-      DEMO_PASSWORD: ${DEMO_PASSWORD:?Définir DEMO_PASSWORD dans .env}
+      DEMO_PASSWORD: ${DEMO_PASSWORD:?Definir DEMO_PASSWORD dans .env}
     depends_on:
       mysql:
         condition: service_healthy
+    expose:
+      - "4000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/api/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  assurrec-web:
+    build:
+      context: ./client
+    image: assurrec-web:2.0.0
+    container_name: assurrec-web
+    restart: unless-stopped
+    depends_on:
+      assurrec-api:
+        condition: service_healthy
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:8080:80"
+
 volumes:
   assurrec_db:
