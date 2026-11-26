@@ -1,0 +1,622 @@
+{
+  "info": {
+    "_postman_id": "5e85f001-cb93-418e-85c7-5ee0385ec844",
+    "name": "AssurRec — Tests API ciblés (authentification et permissions)",
+    "description": "Collection de vérifications API ciblées pour AssurRec. Utilise l’application locale démarrée sur http://localhost:4000/api et les comptes créés par le seed. Les scripts Postman vérifient les statuts HTTP et les réponses. Les connexions des trois profils acquièrent leur session ; Postman conserve le cookie de session. Sélectionner l’environnement « AssurRec — Local » : il contient le mot de passe partagé des comptes de démonstration comme variable sensible masquée « demoPassword », qui prend priorité sur la variable vide de la collection. Le contrat interdit l’inscription publique ; POST /auth/register vérifie que la route demeure absente. Exécuter avec Collection Runner ou Newman. Aucun scénario n’a été exécuté lors de la création.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "24725839"
+  },
+  "item": [
+    {
+      "name": "00 — Santé",
+      "item": [
+        {
+          "name": "Santé de l’API et de MySQL",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"La santé renvoie HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const data = pm.response.json();",
+                  "pm.test(\"L’API confirme sa disponibilité\", function () { pm.expect(data.status).to.eql(\"ok\"); });",
+                  "pm.test(\"La base MySQL est connectée\", function () { pm.expect(data.database).to.eql(\"connected\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "GET /api/health doit renvoyer 200 avec status=ok et database=connected."
+          },
+          "response": []
+        }
+      ],
+      "description": "Vérifie que l’API et sa connexion MySQL sont disponibles."
+    },
+    {
+      "name": "01 — Administrateur",
+      "item": [
+        {
+          "name": "Connexion administrateur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Connexion admin : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Le compte authentifié a le rôle admin\", function () { pm.expect(data.user.role).to.eql(\"admin\"); });",
+                  "pm.test(\"Le serveur fournit un jeton CSRF\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });",
+                  "pm.test(\"Un cookie de session est fourni\", function () { pm.expect(pm.response.headers.has(\"Set-Cookie\")).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{adminEmail}}\",\"password\":\"{{demoPassword}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "La réponse comprend user, csrfToken et un cookie de session HttpOnly. Le cookie est conservé par le cookie jar Postman pour la requête suivante."
+          },
+          "response": []
+        },
+        {
+          "name": "Session administrateur courante",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Session admin : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const data = pm.response.json();",
+                  "pm.test(\"La session courante est admin\", function () { pm.expect(data.user.role).to.eql(\"admin\"); });",
+                  "pm.test(\"La réponse contient le CSRF de session\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Vérifie que le cookie obtenu à la connexion correspond à une session reconnue."
+          },
+          "response": []
+        },
+        {
+          "name": "Admin — peut consulter la liste des utilisateurs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"L’administrateur peut lire les utilisateurs : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const data = pm.response.json();",
+                  "pm.test(\"La réponse est une liste paginée\", function () { pm.expect(data.items).to.be.an(\"array\"); pm.expect(data.total).to.be.a(\"number\"); pm.expect(data.page).to.eql(1); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Contrôle positif du contrôle d’accès : l’administrateur peut lire la liste paginée des comptes."
+          },
+          "response": []
+        }
+      ],
+      "description": "Connexion valide, session, endpoint accessible à l’administrateur."
+    },
+    {
+      "name": "02 — Gestionnaire",
+      "item": [
+        {
+          "name": "Connexion gestionnaire",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Connexion manager : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Le rôle retourné est manager\", function () { pm.expect(data.user.role).to.eql(\"manager\"); });",
+                  "pm.test(\"Le serveur fournit un jeton CSRF\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });",
+                  "pm.test(\"Un cookie de session est fourni\", function () { pm.expect(pm.response.headers.has(\"Set-Cookie\")).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{managerEmail}}\",\"password\":\"{{demoPassword}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "La réponse fournit un cookie de session et un jeton CSRF pour le compte manager."
+          },
+          "response": []
+        },
+        {
+          "name": "Session gestionnaire courante",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Session manager : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const data = pm.response.json();",
+                  "pm.test(\"La session courante est manager\", function () { pm.expect(data.user.role).to.eql(\"manager\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Vérifie que Postman réutilise le cookie du compte gestionnaire."
+          },
+          "response": []
+        },
+        {
+          "name": "Gestionnaire — ne peut pas consulter la liste des utilisateurs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le gestionnaire est refusé : HTTP 403\", function () { pm.response.to.have.status(403); });",
+                  "const data = pm.response.json();",
+                  "pm.test(\"L’API renvoie une erreur structurée\", function () { pm.expect(data.error.code).to.be.a(\"string\"); pm.expect(data.error.message).to.be.a(\"string\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Contrôle négatif : le gestionnaire doit recevoir 403 sur l’endpoint d’administration."
+          },
+          "response": []
+        }
+      ],
+      "description": "Connexion et vérification de sa session ; un gestionnaire n’a pas accès à la liste d’administration."
+    },
+    {
+      "name": "03 — Agent",
+      "item": [
+        {
+          "name": "Connexion agent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Connexion agent : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Le rôle retourné est agent\", function () { pm.expect(data.user.role).to.eql(\"agent\"); });",
+                  "pm.test(\"Le serveur fournit un jeton CSRF\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });",
+                  "pm.test(\"Un cookie de session est fourni\", function () { pm.expect(pm.response.headers.has(\"Set-Cookie\")).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{agentEmail}}\",\"password\":\"{{demoPassword}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "La réponse fournit un cookie de session et un jeton CSRF pour le compte agent."
+          },
+          "response": []
+        },
+        {
+          "name": "Session agent courante",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Session agent : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const data = pm.response.json();",
+                  "pm.test(\"La session courante est agent\", function () { pm.expect(data.user.role).to.eql(\"agent\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Vérifie que Postman réutilise le cookie du compte agent."
+          },
+          "response": []
+        },
+        {
+          "name": "Agent — ne peut pas consulter la liste des utilisateurs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"L’agent est refusé : HTTP 403\", function () { pm.response.to.have.status(403); });",
+                  "const data = pm.response.json();",
+                  "pm.test(\"L’API renvoie une erreur structurée\", function () { pm.expect(data.error.code).to.be.a(\"string\"); pm.expect(data.error.message).to.be.a(\"string\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Contrôle négatif : l’agent doit recevoir 403 sur l’endpoint d’administration."
+          },
+          "response": []
+        }
+      ],
+      "description": "Connexion et vérification de sa session ; un agent ne peut consulter ni les utilisateurs d’administration."
+    },
+    {
+      "name": "04 — Identifiants invalides",
+      "item": [
+        {
+          "name": "Connexion — mot de passe incorrect",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Identifiants invalides : HTTP 401\", function () { pm.response.to.have.status(401); });",
+                  "const data = pm.response.json();",
+                  "pm.test(\"L’erreur ne révèle pas si l’e-mail existe\", function () { pm.expect(data.error.code).to.eql(\"INVALID_CREDENTIALS\"); pm.expect(data.error.message).to.eql(\"E-mail ou mot de passe incorrect.\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{adminEmail}}\",\"password\":\"{{invalidPassword}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Le mot de passe de test volontairement incorrect est une variable, pas le vrai secret du compte."
+          },
+          "response": []
+        }
+      ],
+      "description": "Vérifie que l’API refuse proprement un mot de passe incorrect."
+    },
+    {
+      "name": "05 — Pas d’inscription publique",
+      "item": [
+        {
+          "name": "L’inscription publique est absente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Aucune route d’inscription publique : HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "const data = pm.response.json();",
+                  "pm.test(\"La route est signalée comme introuvable\", function () { pm.expect(data.error.code).to.eql(\"NOT_FOUND\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Contrôle que POST /auth/register n’est pas exposé ; la réponse attendue est 404 NOT_FOUND."
+          },
+          "response": []
+        }
+      ],
+      "description": "Le contrat AssurRec désactive volontairement l’inscription publique ; les utilisateurs sont gérés par l’administration."
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000/api",
+      "description": "Base de l'API locale ; serveur lancé avec npm run dev dans server/."
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@assurrec.demo",
+      "description": "Compte de démonstration créé par npm run db:seed."
+    },
+    {
+      "key": "managerEmail",
+      "value": "gestionnaire@assurrec.demo",
+      "description": "Compte de démonstration créé par npm run db:seed."
+    },
+    {
+      "key": "agentEmail",
+      "value": "agent@assurrec.demo",
+      "description": "Compte de démonstration créé par npm run db:seed."
+    },
+    {
+      "key": "demoPassword",
+      "value": "",
+      "description": "Renseigner le mot de passe DEMO_PASSWORD défini dans server/.env ; ne pas synchroniser de vrai secret."
+    },
+    {
+      "key": "invalidPassword",
+      "value": "MotDePasseIncorrect-Test",
+      "description": "Mot de passe volontairement incorrect pour vérifier la réponse 401."
+    }
+  ]
+}
