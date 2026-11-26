@@ -1,5 +1,21 @@
+# Dépendances et artefacts régénérables
 node_modules/
 dist/
 coverage/
+
+# Secrets et configuration locale
 .env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
 *.log
+npm-debug.log*
+
+# Configuration de l'IDE (couvre aussi client/.idea/)
+.idea/
+.vscode/
+
+# Artefacts d'analyse
+sast-report.json
