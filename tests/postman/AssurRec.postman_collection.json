@@ -19,7 +19,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"La santé renvoie HTTP 200\", function () { pm.response.to.have.status(200); });",
-                  "const data = pm.response.json();",
+                  "var data = pm.response.json();",
                   "pm.test(\"L’API confirme sa disponibilité\", function () { pm.expect(data.status).to.eql(\"ok\"); });",
                   "pm.test(\"La base MySQL est connectée\", function () { pm.expect(data.database).to.eql(\"connected\"); });"
                 ]
@@ -62,7 +62,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Connexion admin : HTTP 200\", function () { pm.response.to.have.status(200); });",
-                  "const data = pm.response.json();",
+                  "var data = pm.response.json();",
                   "pm.test(\"Le compte authentifié a le rôle admin\", function () { pm.expect(data.user.role).to.eql(\"admin\"); });",
                   "pm.test(\"Le serveur fournit un jeton CSRF\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });",
                   "pm.test(\"Un cookie de session est fourni\", function () { pm.expect(pm.response.headers.has(\"Set-Cookie\")).to.eql(true); });"
@@ -114,7 +114,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Session admin : HTTP 200\", function () { pm.response.to.have.status(200); });",
-                  "const data = pm.response.json();",
+                  "var data = pm.response.json();",
                   "pm.test(\"La session courante est admin\", function () { pm.expect(data.user.role).to.eql(\"admin\"); });",
                   "pm.test(\"La réponse contient le CSRF de session\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });"
                 ]
@@ -152,7 +152,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"L’administrateur peut lire les utilisateurs : HTTP 200\", function () { pm.response.to.have.status(200); });",
-                  "const data = pm.response.json();",
+                  "var data = pm.response.json();",
                   "pm.test(\"La réponse est une liste paginée\", function () { pm.expect(data.items).to.be.an(\"array\"); pm.expect(data.total).to.be.a(\"number\"); pm.expect(data.page).to.eql(1); });"
                 ]
               }
@@ -204,7 +204,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Connexion manager : HTTP 200\", function () { pm.response.to.have.status(200); });",
-                  "const data = pm.response.json();",
+                  "var data = pm.response.json();",
                   "pm.test(\"Le rôle retourné est manager\", function () { pm.expect(data.user.role).to.eql(\"manager\"); });",
                   "pm.test(\"Le serveur fournit un jeton CSRF\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });",
                   "pm.test(\"Un cookie de session est fourni\", function () { pm.expect(pm.response.headers.has(\"Set-Cookie\")).to.eql(true); });"
@@ -256,7 +256,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Session manager : HTTP 200\", function () { pm.response.to.have.status(200); });",
-                  "const data = pm.response.json();",
+                  "var data = pm.response.json();",
                   "pm.test(\"La session courante est manager\", function () { pm.expect(data.user.role).to.eql(\"manager\"); });"
                 ]
               }
@@ -293,7 +293,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Le gestionnaire est refusé : HTTP 403\", function () { pm.response.to.have.status(403); });",
-                  "const data = pm.response.json();",
+                  "var data = pm.response.json();",
                   "pm.test(\"L’API renvoie une erreur structurée\", function () { pm.expect(data.error.code).to.be.a(\"string\"); pm.expect(data.error.message).to.be.a(\"string\"); });"
                 ]
               }
@@ -345,7 +345,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Connexion agent : HTTP 200\", function () { pm.response.to.have.status(200); });",
-                  "const data = pm.response.json();",
+                  "var data = pm.response.json();",
                   "pm.test(\"Le rôle retourné est agent\", function () { pm.expect(data.user.role).to.eql(\"agent\"); });",
                   "pm.test(\"Le serveur fournit un jeton CSRF\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });",
                   "pm.test(\"Un cookie de session est fourni\", function () { pm.expect(pm.response.headers.has(\"Set-Cookie\")).to.eql(true); });"
@@ -397,7 +397,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Session agent : HTTP 200\", function () { pm.response.to.have.status(200); });",
-                  "const data = pm.response.json();",
+                  "var data = pm.response.json();",
                   "pm.test(\"La session courante est agent\", function () { pm.expect(data.user.role).to.eql(\"agent\"); });"
                 ]
               }
@@ -434,7 +434,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"L’agent est refusé : HTTP 403\", function () { pm.response.to.have.status(403); });",
-                  "const data = pm.response.json();",
+                  "var data = pm.response.json();",
                   "pm.test(\"L’API renvoie une erreur structurée\", function () { pm.expect(data.error.code).to.be.a(\"string\"); pm.expect(data.error.message).to.be.a(\"string\"); });"
                 ]
               }
@@ -486,7 +486,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Identifiants invalides : HTTP 401\", function () { pm.response.to.have.status(401); });",
-                  "const data = pm.response.json();",
+                  "var data = pm.response.json();",
                   "pm.test(\"L’erreur ne révèle pas si l’e-mail existe\", function () { pm.expect(data.error.code).to.eql(\"INVALID_CREDENTIALS\"); pm.expect(data.error.message).to.eql(\"E-mail ou mot de passe incorrect.\"); });"
                 ]
               }
@@ -542,7 +542,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Aucune route d’inscription publique : HTTP 404\", function () { pm.response.to.have.status(404); });",
-                  "const data = pm.response.json();",
+                  "var data = pm.response.json();",
                   "pm.test(\"La route est signalée comme introuvable\", function () { pm.expect(data.error.code).to.eql(\"NOT_FOUND\"); });"
                 ]
               }

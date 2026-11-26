@@ -1,0 +1,5862 @@
+{
+  "collection": {
+    "_": {
+      "postman_id": "5e85f001-cb93-418e-85c7-5ee0385ec844",
+      "exporter_id": "24725839"
+    },
+    "item": [
+      {
+        "id": "0f0319f2-08ef-4e14-a492-bb694f7e4c49",
+        "name": "00 — Santé",
+        "description": {
+          "content": "Vérifie que l’API et sa connexion MySQL sont disponibles.",
+          "type": "text/plain"
+        },
+        "item": [
+          {
+            "id": "04ceada4-249f-4bfa-a87c-015d90789028",
+            "name": "Santé de l’API et de MySQL",
+            "request": {
+              "description": {
+                "content": "GET /api/health doit renvoyer 200 avec status=ok et database=connected.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "health"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Accept",
+                  "value": "application/json"
+                }
+              ],
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "ab2901b3-4033-4bf3-8a0c-ae7127e5bdc3",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"La santé renvoie HTTP 200\", function () { pm.response.to.have.status(200); });",
+                    "var data = pm.response.json();",
+                    "pm.test(\"L’API confirme sa disponibilité\", function () { pm.expect(data.status).to.eql(\"ok\"); });",
+                    "pm.test(\"La base MySQL est connectée\", function () { pm.expect(data.database).to.eql(\"connected\"); });"
+                  ],
+                  "_lastExecutionId": "1d5e7953-6381-4f5f-8d16-3537bc576cd8"
+                }
+              }
+            ]
+          }
+        ],
+        "event": []
+      },
+      {
+        "id": "13a1eee7-a81f-426b-83d3-b069514593e1",
+        "name": "01 — Administrateur",
+        "description": {
+          "content": "Connexion valide, session, endpoint accessible à l’administrateur.",
+          "type": "text/plain"
+        },
+        "item": [
+          {
+            "id": "22cc2aa3-9c38-45e7-98ef-62291c4248f4",
+            "name": "Connexion administrateur",
+            "request": {
+              "description": {
+                "content": "La réponse comprend user, csrfToken et un cookie de session HttpOnly. Le cookie est conservé par le cookie jar Postman pour la requête suivante.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "auth",
+                  "login"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Accept",
+                  "value": "application/json"
+                }
+              ],
+              "method": "POST",
+              "body": {
+                "mode": "raw",
+                "raw": "{\"email\":\"{{adminEmail}}\",\"password\":\"{{demoPassword}}\"}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              }
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "92eeb814-e9ef-499c-9f26-7e5d99850620",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Connexion admin : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                    "var data = pm.response.json();",
+                    "pm.test(\"Le compte authentifié a le rôle admin\", function () { pm.expect(data.user.role).to.eql(\"admin\"); });",
+                    "pm.test(\"Le serveur fournit un jeton CSRF\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });",
+                    "pm.test(\"Un cookie de session est fourni\", function () { pm.expect(pm.response.headers.has(\"Set-Cookie\")).to.eql(true); });"
+                  ],
+                  "_lastExecutionId": "cc929264-4975-4aa2-bdce-bde0d6bbabff"
+                }
+              }
+            ]
+          },
+          {
+            "id": "17ce8504-286c-407c-8bbd-32b811328697",
+            "name": "Session administrateur courante",
+            "request": {
+              "description": {
+                "content": "Vérifie que le cookie obtenu à la connexion correspond à une session reconnue.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "auth",
+                  "me"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Accept",
+                  "value": "application/json"
+                }
+              ],
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "4748d014-eb4f-426e-a017-9325e221c604",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Session admin : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                    "var data = pm.response.json();",
+                    "pm.test(\"La session courante est admin\", function () { pm.expect(data.user.role).to.eql(\"admin\"); });",
+                    "pm.test(\"La réponse contient le CSRF de session\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });"
+                  ],
+                  "_lastExecutionId": "aa32ac04-ee4d-4e92-b1ba-46c55be471d5"
+                }
+              }
+            ]
+          },
+          {
+            "id": "3d5eff9c-9708-4403-b6c9-9049d192818a",
+            "name": "Admin — peut consulter la liste des utilisateurs",
+            "request": {
+              "description": {
+                "content": "Contrôle positif du contrôle d’accès : l’administrateur peut lire la liste paginée des comptes.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "users"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [
+                  {
+                    "key": "page",
+                    "value": "1"
+                  },
+                  {
+                    "key": "pageSize",
+                    "value": "10"
+                  }
+                ],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Accept",
+                  "value": "application/json"
+                }
+              ],
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "d80ecb71-d3f3-44a8-9344-3027de844900",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"L’administrateur peut lire les utilisateurs : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                    "var data = pm.response.json();",
+                    "pm.test(\"La réponse est une liste paginée\", function () { pm.expect(data.items).to.be.an(\"array\"); pm.expect(data.total).to.be.a(\"number\"); pm.expect(data.page).to.eql(1); });"
+                  ],
+                  "_lastExecutionId": "3fe6f7c2-0720-42f7-a943-c7fb081f3b75"
+                }
+              }
+            ]
+          }
+        ],
+        "event": []
+      },
+      {
+        "id": "e3fca87c-d7ee-4dcc-9cb7-8ec0b553e368",
+        "name": "02 — Gestionnaire",
+        "description": {
+          "content": "Connexion et vérification de sa session ; un gestionnaire n’a pas accès à la liste d’administration.",
+          "type": "text/plain"
+        },
+        "item": [
+          {
+            "id": "a82cead3-4195-4e83-bfda-019dea1e6416",
+            "name": "Connexion gestionnaire",
+            "request": {
+              "description": {
+                "content": "La réponse fournit un cookie de session et un jeton CSRF pour le compte manager.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "auth",
+                  "login"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Accept",
+                  "value": "application/json"
+                }
+              ],
+              "method": "POST",
+              "body": {
+                "mode": "raw",
+                "raw": "{\"email\":\"{{managerEmail}}\",\"password\":\"{{demoPassword}}\"}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              }
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "f01e5eb7-10eb-40af-8c55-8f36096e2651",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Connexion manager : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                    "var data = pm.response.json();",
+                    "pm.test(\"Le rôle retourné est manager\", function () { pm.expect(data.user.role).to.eql(\"manager\"); });",
+                    "pm.test(\"Le serveur fournit un jeton CSRF\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });",
+                    "pm.test(\"Un cookie de session est fourni\", function () { pm.expect(pm.response.headers.has(\"Set-Cookie\")).to.eql(true); });"
+                  ],
+                  "_lastExecutionId": "9f9cd920-0c57-44b1-9fb7-0c2fac5c432d"
+                }
+              }
+            ]
+          },
+          {
+            "id": "bcf0fe47-5286-4a43-971c-0c716913b7a4",
+            "name": "Session gestionnaire courante",
+            "request": {
+              "description": {
+                "content": "Vérifie que Postman réutilise le cookie du compte gestionnaire.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "auth",
+                  "me"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Accept",
+                  "value": "application/json"
+                }
+              ],
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "01dce5ec-4325-4d94-97e0-f812a3f3a388",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Session manager : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                    "var data = pm.response.json();",
+                    "pm.test(\"La session courante est manager\", function () { pm.expect(data.user.role).to.eql(\"manager\"); });"
+                  ],
+                  "_lastExecutionId": "fb38394c-82e0-461b-beb0-8be55fa5ecc4"
+                }
+              }
+            ]
+          },
+          {
+            "id": "f18846cb-bc37-4be5-a622-0ab16111679e",
+            "name": "Gestionnaire — ne peut pas consulter la liste des utilisateurs",
+            "request": {
+              "description": {
+                "content": "Contrôle négatif : le gestionnaire doit recevoir 403 sur l’endpoint d’administration.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "users"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [
+                  {
+                    "key": "page",
+                    "value": "1"
+                  },
+                  {
+                    "key": "pageSize",
+                    "value": "10"
+                  }
+                ],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Accept",
+                  "value": "application/json"
+                }
+              ],
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "3f2f9c37-6ee4-4be0-a0e9-54e04b9beb52",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Le gestionnaire est refusé : HTTP 403\", function () { pm.response.to.have.status(403); });",
+                    "var data = pm.response.json();",
+                    "pm.test(\"L’API renvoie une erreur structurée\", function () { pm.expect(data.error.code).to.be.a(\"string\"); pm.expect(data.error.message).to.be.a(\"string\"); });"
+                  ],
+                  "_lastExecutionId": "7c9d98ca-a547-49e7-b91f-515b7e5471eb"
+                }
+              }
+            ]
+          }
+        ],
+        "event": []
+      },
+      {
+        "id": "b2191cee-95a5-4305-a74c-b08835e4fa05",
+        "name": "03 — Agent",
+        "description": {
+          "content": "Connexion et vérification de sa session ; un agent ne peut consulter ni les utilisateurs d’administration.",
+          "type": "text/plain"
+        },
+        "item": [
+          {
+            "id": "f93df6f3-23bf-4074-841e-c13308e12512",
+            "name": "Connexion agent",
+            "request": {
+              "description": {
+                "content": "La réponse fournit un cookie de session et un jeton CSRF pour le compte agent.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "auth",
+                  "login"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Accept",
+                  "value": "application/json"
+                }
+              ],
+              "method": "POST",
+              "body": {
+                "mode": "raw",
+                "raw": "{\"email\":\"{{agentEmail}}\",\"password\":\"{{demoPassword}}\"}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              }
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "3ae803d2-e878-4515-b6d5-d3db512c55bf",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Connexion agent : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                    "var data = pm.response.json();",
+                    "pm.test(\"Le rôle retourné est agent\", function () { pm.expect(data.user.role).to.eql(\"agent\"); });",
+                    "pm.test(\"Le serveur fournit un jeton CSRF\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });",
+                    "pm.test(\"Un cookie de session est fourni\", function () { pm.expect(pm.response.headers.has(\"Set-Cookie\")).to.eql(true); });"
+                  ],
+                  "_lastExecutionId": "7882568e-5bdf-4de5-80c8-845c2e88d7af"
+                }
+              }
+            ]
+          },
+          {
+            "id": "60c24e78-b997-4454-8ed7-9694d2d78d2f",
+            "name": "Session agent courante",
+            "request": {
+              "description": {
+                "content": "Vérifie que Postman réutilise le cookie du compte agent.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "auth",
+                  "me"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Accept",
+                  "value": "application/json"
+                }
+              ],
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "937b04ed-c429-49b5-b09b-6dca5760454a",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Session agent : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                    "var data = pm.response.json();",
+                    "pm.test(\"La session courante est agent\", function () { pm.expect(data.user.role).to.eql(\"agent\"); });"
+                  ],
+                  "_lastExecutionId": "09bf0c9e-49b4-451e-8c87-53934720a70c"
+                }
+              }
+            ]
+          },
+          {
+            "id": "54970122-2a18-4684-9888-50557fa1414c",
+            "name": "Agent — ne peut pas consulter la liste des utilisateurs",
+            "request": {
+              "description": {
+                "content": "Contrôle négatif : l’agent doit recevoir 403 sur l’endpoint d’administration.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "users"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [
+                  {
+                    "key": "page",
+                    "value": "1"
+                  },
+                  {
+                    "key": "pageSize",
+                    "value": "10"
+                  }
+                ],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Accept",
+                  "value": "application/json"
+                }
+              ],
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "ec735126-7343-4547-b418-206b760f02f2",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"L’agent est refusé : HTTP 403\", function () { pm.response.to.have.status(403); });",
+                    "var data = pm.response.json();",
+                    "pm.test(\"L’API renvoie une erreur structurée\", function () { pm.expect(data.error.code).to.be.a(\"string\"); pm.expect(data.error.message).to.be.a(\"string\"); });"
+                  ],
+                  "_lastExecutionId": "096505aa-4d03-40e4-a741-02c49f5c5047"
+                }
+              }
+            ]
+          }
+        ],
+        "event": []
+      },
+      {
+        "id": "6511d904-1c20-4e64-afa9-fbde3ccde8da",
+        "name": "04 — Identifiants invalides",
+        "description": {
+          "content": "Vérifie que l’API refuse proprement un mot de passe incorrect.",
+          "type": "text/plain"
+        },
+        "item": [
+          {
+            "id": "b67a8bb6-a35f-4d81-83f8-549f55da2ede",
+            "name": "Connexion — mot de passe incorrect",
+            "request": {
+              "description": {
+                "content": "Le mot de passe de test volontairement incorrect est une variable, pas le vrai secret du compte.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "auth",
+                  "login"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Accept",
+                  "value": "application/json"
+                }
+              ],
+              "method": "POST",
+              "body": {
+                "mode": "raw",
+                "raw": "{\"email\":\"{{adminEmail}}\",\"password\":\"{{invalidPassword}}\"}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              }
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "089b84a7-ff96-4168-b9b9-516f911a56a9",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Identifiants invalides : HTTP 401\", function () { pm.response.to.have.status(401); });",
+                    "var data = pm.response.json();",
+                    "pm.test(\"L’erreur ne révèle pas si l’e-mail existe\", function () { pm.expect(data.error.code).to.eql(\"INVALID_CREDENTIALS\"); pm.expect(data.error.message).to.eql(\"E-mail ou mot de passe incorrect.\"); });"
+                  ],
+                  "_lastExecutionId": "3d1f9842-19c4-4cde-adb6-6605b84505ea"
+                }
+              }
+            ]
+          }
+        ],
+        "event": []
+      },
+      {
+        "id": "5f43dcb8-034d-493a-baf6-12a9274b173a",
+        "name": "05 — Pas d’inscription publique",
+        "description": {
+          "content": "Le contrat AssurRec désactive volontairement l’inscription publique ; les utilisateurs sont gérés par l’administration.",
+          "type": "text/plain"
+        },
+        "item": [
+          {
+            "id": "ccc1fd18-b085-48c6-95c1-4198d2f53ecd",
+            "name": "L’inscription publique est absente",
+            "request": {
+              "description": {
+                "content": "Contrôle que POST /auth/register n’est pas exposé ; la réponse attendue est 404 NOT_FOUND.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "auth",
+                  "register"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Accept",
+                  "value": "application/json"
+                }
+              ],
+              "method": "POST",
+              "body": {
+                "mode": "raw",
+                "raw": "{}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              }
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "01dca4f5-111f-49f2-a36a-dfbcd4c32450",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Aucune route d’inscription publique : HTTP 404\", function () { pm.response.to.have.status(404); });",
+                    "var data = pm.response.json();",
+                    "pm.test(\"La route est signalée comme introuvable\", function () { pm.expect(data.error.code).to.eql(\"NOT_FOUND\"); });"
+                  ],
+                  "_lastExecutionId": "a2893a62-0f6d-48e6-af00-14a3a1f21fa8"
+                }
+              }
+            ]
+          }
+        ],
+        "event": []
+      }
+    ],
+    "event": [],
+    "variable": [
+      {
+        "description": {
+          "content": "Base de l'API locale ; serveur lancé avec npm run dev dans server/.",
+          "type": "text/plain"
+        },
+        "type": "any",
+        "value": "http://localhost:4000/api",
+        "key": "baseUrl"
+      },
+      {
+        "description": {
+          "content": "Compte de démonstration créé par npm run db:seed.",
+          "type": "text/plain"
+        },
+        "type": "any",
+        "value": "admin@assurrec.demo",
+        "key": "adminEmail"
+      },
+      {
+        "description": {
+          "content": "Compte de démonstration créé par npm run db:seed.",
+          "type": "text/plain"
+        },
+        "type": "any",
+        "value": "gestionnaire@assurrec.demo",
+        "key": "managerEmail"
+      },
+      {
+        "description": {
+          "content": "Compte de démonstration créé par npm run db:seed.",
+          "type": "text/plain"
+        },
+        "type": "any",
+        "value": "agent@assurrec.demo",
+        "key": "agentEmail"
+      },
+      {
+        "description": {
+          "content": "Renseigner le mot de passe DEMO_PASSWORD défini dans server/.env ; ne pas synchroniser de vrai secret.",
+          "type": "text/plain"
+        },
+        "type": "any",
+        "value": "",
+        "key": "demoPassword"
+      },
+      {
+        "description": {
+          "content": "Mot de passe volontairement incorrect pour vérifier la réponse 401.",
+          "type": "text/plain"
+        },
+        "type": "any",
+        "value": "MotDePasseIncorrect-Test",
+        "key": "invalidPassword"
+      }
+    ],
+    "info": {
+      "_postman_id": "5e85f001-cb93-418e-85c7-5ee0385ec844",
+      "name": "AssurRec — Tests API ciblés (authentification et permissions)",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "description": {
+        "content": "Collection de vérifications API ciblées pour AssurRec. Utilise l’application locale démarrée sur http://localhost:4000/api et les comptes créés par le seed. Les scripts Postman vérifient les statuts HTTP et les réponses. Les connexions des trois profils acquièrent leur session ; Postman conserve le cookie de session. Sélectionner l’environnement « AssurRec — Local » : il contient le mot de passe partagé des comptes de démonstration comme variable sensible masquée « demoPassword », qui prend priorité sur la variable vide de la collection. Le contrat interdit l’inscription publique ; POST /auth/register vérifie que la route demeure absente. Exécuter avec Collection Runner ou Newman. Aucun scénario n’a été exécuté lors de la création.",
+        "type": "text/plain"
+      }
+    }
+  },
+  "environment": {
+    "id": "24fcc095-7a9a-4cf6-8462-c9b588e48d67",
+    "values": [
+      {
+        "type": "any",
+        "value": "http://localhost:8080/api",
+        "key": "baseUrl"
+      },
+      {
+        "type": "any",
+        "value": "AssurRec-Demo-2026!",
+        "key": "demoPassword"
+      }
+    ]
+  },
+  "globals": {
+    "id": "701b47e6-e352-4e5d-942c-5c96e60f7713",
+    "values": []
+  },
+  "run": {
+    "stats": {
+      "iterations": {
+        "total": 1,
+        "pending": 0,
+        "failed": 0
+      },
+      "items": {
+        "total": 12,
+        "pending": 0,
+        "failed": 0
+      },
+      "scripts": {
+        "total": 12,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequests": {
+        "total": 12,
+        "pending": 0,
+        "failed": 0
+      },
+      "requests": {
+        "total": 12,
+        "pending": 0,
+        "failed": 0
+      },
+      "tests": {
+        "total": 12,
+        "pending": 0,
+        "failed": 0
+      },
+      "assertions": {
+        "total": 32,
+        "pending": 0,
+        "failed": 0
+      },
+      "testScripts": {
+        "total": 12,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequestScripts": {
+        "total": 0,
+        "pending": 0,
+        "failed": 0
+      }
+    },
+    "timings": {
+      "responseAverage": 60.833333333333336,
+      "responseMin": 10,
+      "responseMax": 161,
+      "responseSd": 52.10859387428869,
+      "dnsAverage": 0,
+      "dnsMin": 0,
+      "dnsMax": 0,
+      "dnsSd": 0,
+      "firstByteAverage": 0,
+      "firstByteMin": 0,
+      "firstByteMax": 0,
+      "firstByteSd": 0,
+      "started": 1795718325837,
+      "completed": 1795718327730
+    },
+    "executions": [
+      {
+        "cursor": {
+          "position": 0,
+          "iteration": 0,
+          "length": 12,
+          "cycles": 1,
+          "empty": false,
+          "eof": false,
+          "bof": true,
+          "cr": false,
+          "ref": "f96c5508-bad9-43ba-aca0-b5aefc6a170f",
+          "httpRequestId": "22e38334-ca9c-44c6-b4df-bcd672dc9ba7"
+        },
+        "item": {
+          "id": "04ceada4-249f-4bfa-a87c-015d90789028",
+          "name": "Santé de l’API et de MySQL",
+          "request": {
+            "description": {
+              "content": "GET /api/health doit renvoyer 200 avec status=ok et database=connected.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "ab2901b3-4033-4bf3-8a0c-ae7127e5bdc3",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"La santé renvoie HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"L’API confirme sa disponibilité\", function () { pm.expect(data.status).to.eql(\"ok\"); });",
+                  "pm.test(\"La base MySQL est connectée\", function () { pm.expect(data.database).to.eql(\"connected\"); });"
+                ],
+                "_lastExecutionId": "1d5e7953-6381-4f5f-8d16-3537bc576cd8"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "GET /api/health doit renvoyer 200 avec status=ok et database=connected.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "health"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "8e00cbf5-5923-4982-9a1a-784d92a89872",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "8abadf2b-2382-472d-baec-c4f3b56718da",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Server",
+              "value": "nginx/1.30.8"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Nov 2026 18:38:45 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "38"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Cross-Origin-Opener-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Cross-Origin-Resource-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Origin-Agent-Cluster",
+              "value": "?1"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-DNS-Prefetch-Control",
+              "value": "off"
+            },
+            {
+              "key": "X-Download-Options",
+              "value": "noopen"
+            },
+            {
+              "key": "X-Permitted-Cross-Domain-Policies",
+              "value": "none"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "0"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"26-G5LxOYyjFUYa+WPP6EvZ1P788Mo\""
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              111,
+              107,
+              34,
+              44,
+              34,
+              100,
+              97,
+              116,
+              97,
+              98,
+              97,
+              115,
+              101,
+              34,
+              58,
+              34,
+              99,
+              111,
+              110,
+              110,
+              101,
+              99,
+              116,
+              101,
+              100,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 67,
+          "responseSize": 38
+        },
+        "id": "04ceada4-249f-4bfa-a87c-015d90789028",
+        "assertions": [
+          {
+            "assertion": "La santé renvoie HTTP 200",
+            "skipped": false
+          },
+          {
+            "assertion": "L’API confirme sa disponibilité",
+            "skipped": false
+          },
+          {
+            "assertion": "La base MySQL est connectée",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "c44d8e62-8f3d-4ddc-a87d-3ae40f2c8dea",
+          "length": 12,
+          "cycles": 1,
+          "position": 1,
+          "iteration": 0,
+          "httpRequestId": "204830d8-1297-40e0-84d4-8f6e84795e06"
+        },
+        "item": {
+          "id": "22cc2aa3-9c38-45e7-98ef-62291c4248f4",
+          "name": "Connexion administrateur",
+          "request": {
+            "description": {
+              "content": "La réponse comprend user, csrfToken et un cookie de session HttpOnly. Le cookie est conservé par le cookie jar Postman pour la requête suivante.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "auth",
+                "login"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{adminEmail}}\",\"password\":\"{{demoPassword}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "92eeb814-e9ef-499c-9f26-7e5d99850620",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Connexion admin : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"Le compte authentifié a le rôle admin\", function () { pm.expect(data.user.role).to.eql(\"admin\"); });",
+                  "pm.test(\"Le serveur fournit un jeton CSRF\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });",
+                  "pm.test(\"Un cookie de session est fourni\", function () { pm.expect(pm.response.headers.has(\"Set-Cookie\")).to.eql(true); });"
+                ],
+                "_lastExecutionId": "cc929264-4975-4aa2-bdce-bde0d6bbabff"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "La réponse comprend user, csrfToken et un cookie de session HttpOnly. Le cookie est conservé par le cookie jar Postman pour la requête suivante.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "auth",
+              "login"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "1a985636-5bbc-4d0a-85a0-4079b3644a08",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "64",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"email\":\"admin@assurrec.demo\",\"password\":\"AssurRec-Demo-2026!\"}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "6f0ff422-5aaf-423e-8f9e-55c7feecb33a",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Server",
+              "value": "nginx/1.30.8"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Nov 2026 18:38:46 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "203"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Cross-Origin-Opener-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Cross-Origin-Resource-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Origin-Agent-Cluster",
+              "value": "?1"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-DNS-Prefetch-Control",
+              "value": "off"
+            },
+            {
+              "key": "X-Download-Options",
+              "value": "noopen"
+            },
+            {
+              "key": "X-Permitted-Cross-Domain-Policies",
+              "value": "none"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "0"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            },
+            {
+              "key": "RateLimit",
+              "value": "\"10-in-15min\"; r=9; t=900"
+            },
+            {
+              "key": "RateLimit-Policy",
+              "value": "\"10-in-15min\"; q=10; w=900; pk=:YjZkY2Q4MjA1MWE1:"
+            },
+            {
+              "key": "Set-Cookie",
+              "value": "assurrec_session=QCGaQfT_WuLQWRoBHLPKAcHLETK5gds6Qpgt53oLxbc; Max-Age=43200; Path=/; Expires=Fri, 27 Nov 2026 06:38:46 GMT; HttpOnly; SameSite=Lax"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"cb-6okbpa1YMK4o1pABJQbkUmrk7Ns\""
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              117,
+              115,
+              101,
+              114,
+              34,
+              58,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              49,
+              44,
+              34,
+              110,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              65,
+              100,
+              109,
+              105,
+              110,
+              105,
+              115,
+              116,
+              114,
+              97,
+              116,
+              101,
+              117,
+              114,
+              32,
+              100,
+              195,
+              169,
+              109,
+              111,
+              34,
+              44,
+              34,
+              101,
+              109,
+              97,
+              105,
+              108,
+              34,
+              58,
+              34,
+              97,
+              100,
+              109,
+              105,
+              110,
+              64,
+              97,
+              115,
+              115,
+              117,
+              114,
+              114,
+              101,
+              99,
+              46,
+              100,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              114,
+              111,
+              108,
+              101,
+              34,
+              58,
+              34,
+              97,
+              100,
+              109,
+              105,
+              110,
+              34,
+              44,
+              34,
+              97,
+              99,
+              116,
+              105,
+              118,
+              101,
+              34,
+              58,
+              116,
+              114,
+              117,
+              101,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              50,
+              54,
+              84,
+              49,
+              54,
+              58,
+              53,
+              52,
+              58,
+              48,
+              55,
+              46,
+              48,
+              48,
+              48,
+              90,
+              34,
+              125,
+              44,
+              34,
+              99,
+              115,
+              114,
+              102,
+              84,
+              111,
+              107,
+              101,
+              110,
+              34,
+              58,
+              34,
+              85,
+              121,
+              100,
+              72,
+              109,
+              71,
+              87,
+              121,
+              100,
+              104,
+              107,
+              89,
+              103,
+              84,
+              65,
+              113,
+              106,
+              102,
+              88,
+              109,
+              48,
+              119,
+              48,
+              114,
+              101,
+              66,
+              107,
+              72,
+              74,
+              106,
+              72,
+              72,
+              66,
+              51,
+              121,
+              77,
+              80,
+              108,
+              107,
+              52,
+              110,
+              69,
+              107,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 127,
+          "responseSize": 203
+        },
+        "id": "22cc2aa3-9c38-45e7-98ef-62291c4248f4",
+        "assertions": [
+          {
+            "assertion": "Connexion admin : HTTP 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Le compte authentifié a le rôle admin",
+            "skipped": false
+          },
+          {
+            "assertion": "Le serveur fournit un jeton CSRF",
+            "skipped": false
+          },
+          {
+            "assertion": "Un cookie de session est fourni",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "1bd4483c-976c-4974-9985-ca8c33f8593d",
+          "length": 12,
+          "cycles": 1,
+          "position": 2,
+          "iteration": 0,
+          "httpRequestId": "b26a1729-c325-494f-9b1a-42b0220e49bb"
+        },
+        "item": {
+          "id": "17ce8504-286c-407c-8bbd-32b811328697",
+          "name": "Session administrateur courante",
+          "request": {
+            "description": {
+              "content": "Vérifie que le cookie obtenu à la connexion correspond à une session reconnue.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "auth",
+                "me"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "4748d014-eb4f-426e-a017-9325e221c604",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Session admin : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"La session courante est admin\", function () { pm.expect(data.user.role).to.eql(\"admin\"); });",
+                  "pm.test(\"La réponse contient le CSRF de session\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });"
+                ],
+                "_lastExecutionId": "aa32ac04-ee4d-4e92-b1ba-46c55be471d5"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Vérifie que le cookie obtenu à la connexion correspond à une session reconnue.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "auth",
+              "me"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "6b07fc2f-3ef6-4ab6-841e-70238ee87d7b",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Cookie",
+              "value": "assurrec_session=QCGaQfT_WuLQWRoBHLPKAcHLETK5gds6Qpgt53oLxbc",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "57b77771-fea8-4d55-a44f-5d30d56a1c5c",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Server",
+              "value": "nginx/1.30.8"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Nov 2026 18:38:46 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "203"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Cross-Origin-Opener-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Cross-Origin-Resource-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Origin-Agent-Cluster",
+              "value": "?1"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-DNS-Prefetch-Control",
+              "value": "off"
+            },
+            {
+              "key": "X-Download-Options",
+              "value": "noopen"
+            },
+            {
+              "key": "X-Permitted-Cross-Domain-Policies",
+              "value": "none"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "0"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"cb-6okbpa1YMK4o1pABJQbkUmrk7Ns\""
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              117,
+              115,
+              101,
+              114,
+              34,
+              58,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              49,
+              44,
+              34,
+              110,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              65,
+              100,
+              109,
+              105,
+              110,
+              105,
+              115,
+              116,
+              114,
+              97,
+              116,
+              101,
+              117,
+              114,
+              32,
+              100,
+              195,
+              169,
+              109,
+              111,
+              34,
+              44,
+              34,
+              101,
+              109,
+              97,
+              105,
+              108,
+              34,
+              58,
+              34,
+              97,
+              100,
+              109,
+              105,
+              110,
+              64,
+              97,
+              115,
+              115,
+              117,
+              114,
+              114,
+              101,
+              99,
+              46,
+              100,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              114,
+              111,
+              108,
+              101,
+              34,
+              58,
+              34,
+              97,
+              100,
+              109,
+              105,
+              110,
+              34,
+              44,
+              34,
+              97,
+              99,
+              116,
+              105,
+              118,
+              101,
+              34,
+              58,
+              116,
+              114,
+              117,
+              101,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              50,
+              54,
+              84,
+              49,
+              54,
+              58,
+              53,
+              52,
+              58,
+              48,
+              55,
+              46,
+              48,
+              48,
+              48,
+              90,
+              34,
+              125,
+              44,
+              34,
+              99,
+              115,
+              114,
+              102,
+              84,
+              111,
+              107,
+              101,
+              110,
+              34,
+              58,
+              34,
+              85,
+              121,
+              100,
+              72,
+              109,
+              71,
+              87,
+              121,
+              100,
+              104,
+              107,
+              89,
+              103,
+              84,
+              65,
+              113,
+              106,
+              102,
+              88,
+              109,
+              48,
+              119,
+              48,
+              114,
+              101,
+              66,
+              107,
+              72,
+              74,
+              106,
+              72,
+              72,
+              66,
+              51,
+              121,
+              77,
+              80,
+              108,
+              107,
+              52,
+              110,
+              69,
+              107,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 15,
+          "responseSize": 203
+        },
+        "id": "17ce8504-286c-407c-8bbd-32b811328697",
+        "assertions": [
+          {
+            "assertion": "Session admin : HTTP 200",
+            "skipped": false
+          },
+          {
+            "assertion": "La session courante est admin",
+            "skipped": false
+          },
+          {
+            "assertion": "La réponse contient le CSRF de session",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "2e0503be-eb90-4180-8631-e18b72b3efc8",
+          "length": 12,
+          "cycles": 1,
+          "position": 3,
+          "iteration": 0,
+          "httpRequestId": "0a8f2052-860b-4c18-afaf-a1e6e5d43a48"
+        },
+        "item": {
+          "id": "3d5eff9c-9708-4403-b6c9-9049d192818a",
+          "name": "Admin — peut consulter la liste des utilisateurs",
+          "request": {
+            "description": {
+              "content": "Contrôle positif du contrôle d’accès : l’administrateur peut lire la liste paginée des comptes.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "users"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d80ecb71-d3f3-44a8-9344-3027de844900",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"L’administrateur peut lire les utilisateurs : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"La réponse est une liste paginée\", function () { pm.expect(data.items).to.be.an(\"array\"); pm.expect(data.total).to.be.a(\"number\"); pm.expect(data.page).to.eql(1); });"
+                ],
+                "_lastExecutionId": "3fe6f7c2-0720-42f7-a943-c7fb081f3b75"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Contrôle positif du contrôle d’accès : l’administrateur peut lire la liste paginée des comptes.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "users"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [
+              {
+                "key": "page",
+                "value": "1"
+              },
+              {
+                "key": "pageSize",
+                "value": "10"
+              }
+            ],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "4816a358-2109-491f-bcee-98ca4f332bca",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Cookie",
+              "value": "assurrec_session=QCGaQfT_WuLQWRoBHLPKAcHLETK5gds6Qpgt53oLxbc",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "3d605898-4411-40e9-9129-506f3b0aaa97",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Server",
+              "value": "nginx/1.30.8"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Nov 2026 18:38:46 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "593"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Cross-Origin-Opener-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Cross-Origin-Resource-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Origin-Agent-Cluster",
+              "value": "?1"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-DNS-Prefetch-Control",
+              "value": "off"
+            },
+            {
+              "key": "X-Download-Options",
+              "value": "noopen"
+            },
+            {
+              "key": "X-Permitted-Cross-Domain-Policies",
+              "value": "none"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "0"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"251-J8J94CbqLdZG+2nQoG4Cgf5Pq9E\""
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              105,
+              116,
+              101,
+              109,
+              115,
+              34,
+              58,
+              91,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              52,
+              44,
+              34,
+              110,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              65,
+              103,
+              101,
+              110,
+              116,
+              32,
+              115,
+              101,
+              99,
+              111,
+              110,
+              100,
+              97,
+              105,
+              114,
+              101,
+              32,
+              100,
+              195,
+              169,
+              109,
+              111,
+              34,
+              44,
+              34,
+              101,
+              109,
+              97,
+              105,
+              108,
+              34,
+              58,
+              34,
+              97,
+              103,
+              101,
+              110,
+              116,
+              50,
+              64,
+              97,
+              115,
+              115,
+              117,
+              114,
+              114,
+              101,
+              99,
+              46,
+              100,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              114,
+              111,
+              108,
+              101,
+              34,
+              58,
+              34,
+              97,
+              103,
+              101,
+              110,
+              116,
+              34,
+              44,
+              34,
+              97,
+              99,
+              116,
+              105,
+              118,
+              101,
+              34,
+              58,
+              116,
+              114,
+              117,
+              101,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              50,
+              54,
+              84,
+              49,
+              54,
+              58,
+              53,
+              52,
+              58,
+              48,
+              55,
+              46,
+              48,
+              48,
+              48,
+              90,
+              34,
+              125,
+              44,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              51,
+              44,
+              34,
+              110,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              65,
+              103,
+              101,
+              110,
+              116,
+              32,
+              100,
+              195,
+              169,
+              109,
+              111,
+              34,
+              44,
+              34,
+              101,
+              109,
+              97,
+              105,
+              108,
+              34,
+              58,
+              34,
+              97,
+              103,
+              101,
+              110,
+              116,
+              64,
+              97,
+              115,
+              115,
+              117,
+              114,
+              114,
+              101,
+              99,
+              46,
+              100,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              114,
+              111,
+              108,
+              101,
+              34,
+              58,
+              34,
+              97,
+              103,
+              101,
+              110,
+              116,
+              34,
+              44,
+              34,
+              97,
+              99,
+              116,
+              105,
+              118,
+              101,
+              34,
+              58,
+              116,
+              114,
+              117,
+              101,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              50,
+              54,
+              84,
+              49,
+              54,
+              58,
+              53,
+              52,
+              58,
+              48,
+              55,
+              46,
+              48,
+              48,
+              48,
+              90,
+              34,
+              125,
+              44,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              50,
+              44,
+              34,
+              110,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              71,
+              101,
+              115,
+              116,
+              105,
+              111,
+              110,
+              110,
+              97,
+              105,
+              114,
+              101,
+              32,
+              100,
+              195,
+              169,
+              109,
+              111,
+              34,
+              44,
+              34,
+              101,
+              109,
+              97,
+              105,
+              108,
+              34,
+              58,
+              34,
+              103,
+              101,
+              115,
+              116,
+              105,
+              111,
+              110,
+              110,
+              97,
+              105,
+              114,
+              101,
+              64,
+              97,
+              115,
+              115,
+              117,
+              114,
+              114,
+              101,
+              99,
+              46,
+              100,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              114,
+              111,
+              108,
+              101,
+              34,
+              58,
+              34,
+              109,
+              97,
+              110,
+              97,
+              103,
+              101,
+              114,
+              34,
+              44,
+              34,
+              97,
+              99,
+              116,
+              105,
+              118,
+              101,
+              34,
+              58,
+              116,
+              114,
+              117,
+              101,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              50,
+              54,
+              84,
+              49,
+              54,
+              58,
+              53,
+              52,
+              58,
+              48,
+              55,
+              46,
+              48,
+              48,
+              48,
+              90,
+              34,
+              125,
+              44,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              49,
+              44,
+              34,
+              110,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              65,
+              100,
+              109,
+              105,
+              110,
+              105,
+              115,
+              116,
+              114,
+              97,
+              116,
+              101,
+              117,
+              114,
+              32,
+              100,
+              195,
+              169,
+              109,
+              111,
+              34,
+              44,
+              34,
+              101,
+              109,
+              97,
+              105,
+              108,
+              34,
+              58,
+              34,
+              97,
+              100,
+              109,
+              105,
+              110,
+              64,
+              97,
+              115,
+              115,
+              117,
+              114,
+              114,
+              101,
+              99,
+              46,
+              100,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              114,
+              111,
+              108,
+              101,
+              34,
+              58,
+              34,
+              97,
+              100,
+              109,
+              105,
+              110,
+              34,
+              44,
+              34,
+              97,
+              99,
+              116,
+              105,
+              118,
+              101,
+              34,
+              58,
+              116,
+              114,
+              117,
+              101,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              50,
+              54,
+              84,
+              49,
+              54,
+              58,
+              53,
+              52,
+              58,
+              48,
+              55,
+              46,
+              48,
+              48,
+              48,
+              90,
+              34,
+              125,
+              93,
+              44,
+              34,
+              116,
+              111,
+              116,
+              97,
+              108,
+              34,
+              58,
+              52,
+              44,
+              34,
+              112,
+              97,
+              103,
+              101,
+              34,
+              58,
+              49,
+              44,
+              34,
+              112,
+              97,
+              103,
+              101,
+              83,
+              105,
+              122,
+              101,
+              34,
+              58,
+              49,
+              48,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 24,
+          "responseSize": 593
+        },
+        "id": "3d5eff9c-9708-4403-b6c9-9049d192818a",
+        "assertions": [
+          {
+            "assertion": "L’administrateur peut lire les utilisateurs : HTTP 200",
+            "skipped": false
+          },
+          {
+            "assertion": "La réponse est une liste paginée",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "1e7a6315-2626-4693-8c67-efbbf54af059",
+          "length": 12,
+          "cycles": 1,
+          "position": 4,
+          "iteration": 0,
+          "httpRequestId": "79256851-c478-4b47-b407-5c933f3de0b7"
+        },
+        "item": {
+          "id": "a82cead3-4195-4e83-bfda-019dea1e6416",
+          "name": "Connexion gestionnaire",
+          "request": {
+            "description": {
+              "content": "La réponse fournit un cookie de session et un jeton CSRF pour le compte manager.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "auth",
+                "login"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{managerEmail}}\",\"password\":\"{{demoPassword}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "f01e5eb7-10eb-40af-8c55-8f36096e2651",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Connexion manager : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"Le rôle retourné est manager\", function () { pm.expect(data.user.role).to.eql(\"manager\"); });",
+                  "pm.test(\"Le serveur fournit un jeton CSRF\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });",
+                  "pm.test(\"Un cookie de session est fourni\", function () { pm.expect(pm.response.headers.has(\"Set-Cookie\")).to.eql(true); });"
+                ],
+                "_lastExecutionId": "9f9cd920-0c57-44b1-9fb7-0c2fac5c432d"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "La réponse fournit un cookie de session et un jeton CSRF pour le compte manager.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "auth",
+              "login"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "11899ff8-73c8-4e89-bd63-7cd7a352125c",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "71",
+              "system": true
+            },
+            {
+              "key": "Cookie",
+              "value": "assurrec_session=QCGaQfT_WuLQWRoBHLPKAcHLETK5gds6Qpgt53oLxbc",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"email\":\"gestionnaire@assurrec.demo\",\"password\":\"AssurRec-Demo-2026!\"}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "cd588c52-f8c4-4977-a252-aa054bf5dfb2",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Server",
+              "value": "nginx/1.30.8"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Nov 2026 18:38:46 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "210"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Cross-Origin-Opener-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Cross-Origin-Resource-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Origin-Agent-Cluster",
+              "value": "?1"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-DNS-Prefetch-Control",
+              "value": "off"
+            },
+            {
+              "key": "X-Download-Options",
+              "value": "noopen"
+            },
+            {
+              "key": "X-Permitted-Cross-Domain-Policies",
+              "value": "none"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "0"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            },
+            {
+              "key": "RateLimit",
+              "value": "\"10-in-15min\"; r=8; t=900"
+            },
+            {
+              "key": "RateLimit-Policy",
+              "value": "\"10-in-15min\"; q=10; w=900; pk=:YjZkY2Q4MjA1MWE1:"
+            },
+            {
+              "key": "Set-Cookie",
+              "value": "assurrec_session=e66BwxTZ6awE9qt7HGgMKeK0-TUloeQFurGMqaBJXl8; Max-Age=43200; Path=/; Expires=Fri, 27 Nov 2026 06:38:46 GMT; HttpOnly; SameSite=Lax"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"d2-wx2tcWChoyfHC52Koex4YLx11l4\""
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              117,
+              115,
+              101,
+              114,
+              34,
+              58,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              50,
+              44,
+              34,
+              110,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              71,
+              101,
+              115,
+              116,
+              105,
+              111,
+              110,
+              110,
+              97,
+              105,
+              114,
+              101,
+              32,
+              100,
+              195,
+              169,
+              109,
+              111,
+              34,
+              44,
+              34,
+              101,
+              109,
+              97,
+              105,
+              108,
+              34,
+              58,
+              34,
+              103,
+              101,
+              115,
+              116,
+              105,
+              111,
+              110,
+              110,
+              97,
+              105,
+              114,
+              101,
+              64,
+              97,
+              115,
+              115,
+              117,
+              114,
+              114,
+              101,
+              99,
+              46,
+              100,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              114,
+              111,
+              108,
+              101,
+              34,
+              58,
+              34,
+              109,
+              97,
+              110,
+              97,
+              103,
+              101,
+              114,
+              34,
+              44,
+              34,
+              97,
+              99,
+              116,
+              105,
+              118,
+              101,
+              34,
+              58,
+              116,
+              114,
+              117,
+              101,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              50,
+              54,
+              84,
+              49,
+              54,
+              58,
+              53,
+              52,
+              58,
+              48,
+              55,
+              46,
+              48,
+              48,
+              48,
+              90,
+              34,
+              125,
+              44,
+              34,
+              99,
+              115,
+              114,
+              102,
+              84,
+              111,
+              107,
+              101,
+              110,
+              34,
+              58,
+              34,
+              115,
+              112,
+              109,
+              82,
+              101,
+              122,
+              107,
+              100,
+              55,
+              74,
+              82,
+              78,
+              73,
+              80,
+              57,
+              73,
+              101,
+              90,
+              106,
+              80,
+              69,
+              108,
+              48,
+              121,
+              122,
+              69,
+              118,
+              45,
+              101,
+              48,
+              105,
+              50,
+              69,
+              116,
+              51,
+              122,
+              82,
+              87,
+              73,
+              103,
+              95,
+              68,
+              48,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 132,
+          "responseSize": 210
+        },
+        "id": "a82cead3-4195-4e83-bfda-019dea1e6416",
+        "assertions": [
+          {
+            "assertion": "Connexion manager : HTTP 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Le rôle retourné est manager",
+            "skipped": false
+          },
+          {
+            "assertion": "Le serveur fournit un jeton CSRF",
+            "skipped": false
+          },
+          {
+            "assertion": "Un cookie de session est fourni",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "11452de1-da3a-4e12-84d0-635eb9005412",
+          "length": 12,
+          "cycles": 1,
+          "position": 5,
+          "iteration": 0,
+          "httpRequestId": "0f407fc4-4244-4c05-a5e1-495fbea16fef"
+        },
+        "item": {
+          "id": "bcf0fe47-5286-4a43-971c-0c716913b7a4",
+          "name": "Session gestionnaire courante",
+          "request": {
+            "description": {
+              "content": "Vérifie que Postman réutilise le cookie du compte gestionnaire.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "auth",
+                "me"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "01dce5ec-4325-4d94-97e0-f812a3f3a388",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Session manager : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"La session courante est manager\", function () { pm.expect(data.user.role).to.eql(\"manager\"); });"
+                ],
+                "_lastExecutionId": "fb38394c-82e0-461b-beb0-8be55fa5ecc4"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Vérifie que Postman réutilise le cookie du compte gestionnaire.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "auth",
+              "me"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "21087b9d-d744-427d-bf04-ff565a86a5df",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Cookie",
+              "value": "assurrec_session=e66BwxTZ6awE9qt7HGgMKeK0-TUloeQFurGMqaBJXl8",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "063988fd-224a-406a-b673-30ea70966310",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Server",
+              "value": "nginx/1.30.8"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Nov 2026 18:38:46 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "210"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Cross-Origin-Opener-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Cross-Origin-Resource-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Origin-Agent-Cluster",
+              "value": "?1"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-DNS-Prefetch-Control",
+              "value": "off"
+            },
+            {
+              "key": "X-Download-Options",
+              "value": "noopen"
+            },
+            {
+              "key": "X-Permitted-Cross-Domain-Policies",
+              "value": "none"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "0"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"d2-wx2tcWChoyfHC52Koex4YLx11l4\""
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              117,
+              115,
+              101,
+              114,
+              34,
+              58,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              50,
+              44,
+              34,
+              110,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              71,
+              101,
+              115,
+              116,
+              105,
+              111,
+              110,
+              110,
+              97,
+              105,
+              114,
+              101,
+              32,
+              100,
+              195,
+              169,
+              109,
+              111,
+              34,
+              44,
+              34,
+              101,
+              109,
+              97,
+              105,
+              108,
+              34,
+              58,
+              34,
+              103,
+              101,
+              115,
+              116,
+              105,
+              111,
+              110,
+              110,
+              97,
+              105,
+              114,
+              101,
+              64,
+              97,
+              115,
+              115,
+              117,
+              114,
+              114,
+              101,
+              99,
+              46,
+              100,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              114,
+              111,
+              108,
+              101,
+              34,
+              58,
+              34,
+              109,
+              97,
+              110,
+              97,
+              103,
+              101,
+              114,
+              34,
+              44,
+              34,
+              97,
+              99,
+              116,
+              105,
+              118,
+              101,
+              34,
+              58,
+              116,
+              114,
+              117,
+              101,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              50,
+              54,
+              84,
+              49,
+              54,
+              58,
+              53,
+              52,
+              58,
+              48,
+              55,
+              46,
+              48,
+              48,
+              48,
+              90,
+              34,
+              125,
+              44,
+              34,
+              99,
+              115,
+              114,
+              102,
+              84,
+              111,
+              107,
+              101,
+              110,
+              34,
+              58,
+              34,
+              115,
+              112,
+              109,
+              82,
+              101,
+              122,
+              107,
+              100,
+              55,
+              74,
+              82,
+              78,
+              73,
+              80,
+              57,
+              73,
+              101,
+              90,
+              106,
+              80,
+              69,
+              108,
+              48,
+              121,
+              122,
+              69,
+              118,
+              45,
+              101,
+              48,
+              105,
+              50,
+              69,
+              116,
+              51,
+              122,
+              82,
+              87,
+              73,
+              103,
+              95,
+              68,
+              48,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 30,
+          "responseSize": 210
+        },
+        "id": "bcf0fe47-5286-4a43-971c-0c716913b7a4",
+        "assertions": [
+          {
+            "assertion": "Session manager : HTTP 200",
+            "skipped": false
+          },
+          {
+            "assertion": "La session courante est manager",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "6990a0c6-b5e7-4dad-a98d-e7c6716609d4",
+          "length": 12,
+          "cycles": 1,
+          "position": 6,
+          "iteration": 0,
+          "httpRequestId": "b4e9e9f3-02cc-458e-8674-74d2651e6f1d"
+        },
+        "item": {
+          "id": "f18846cb-bc37-4be5-a622-0ab16111679e",
+          "name": "Gestionnaire — ne peut pas consulter la liste des utilisateurs",
+          "request": {
+            "description": {
+              "content": "Contrôle négatif : le gestionnaire doit recevoir 403 sur l’endpoint d’administration.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "users"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "3f2f9c37-6ee4-4be0-a0e9-54e04b9beb52",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le gestionnaire est refusé : HTTP 403\", function () { pm.response.to.have.status(403); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"L’API renvoie une erreur structurée\", function () { pm.expect(data.error.code).to.be.a(\"string\"); pm.expect(data.error.message).to.be.a(\"string\"); });"
+                ],
+                "_lastExecutionId": "7c9d98ca-a547-49e7-b91f-515b7e5471eb"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Contrôle négatif : le gestionnaire doit recevoir 403 sur l’endpoint d’administration.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "users"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [
+              {
+                "key": "page",
+                "value": "1"
+              },
+              {
+                "key": "pageSize",
+                "value": "10"
+              }
+            ],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "5beae23c-d032-4ea1-8234-9bdccb336603",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Cookie",
+              "value": "assurrec_session=e66BwxTZ6awE9qt7HGgMKeK0-TUloeQFurGMqaBJXl8",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "d19eff89-3c51-455e-a402-0aab1fdbff84",
+          "status": "Forbidden",
+          "code": 403,
+          "header": [
+            {
+              "key": "Server",
+              "value": "nginx/1.30.8"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Nov 2026 18:38:46 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "57"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Cross-Origin-Opener-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Cross-Origin-Resource-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Origin-Agent-Cluster",
+              "value": "?1"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-DNS-Prefetch-Control",
+              "value": "off"
+            },
+            {
+              "key": "X-Download-Options",
+              "value": "noopen"
+            },
+            {
+              "key": "X-Permitted-Cross-Domain-Policies",
+              "value": "none"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "0"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"39-toUy4VmjucudOErrxw2BYJW/FoM\""
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              123,
+              34,
+              99,
+              111,
+              100,
+              101,
+              34,
+              58,
+              34,
+              70,
+              79,
+              82,
+              66,
+              73,
+              68,
+              68,
+              69,
+              78,
+              34,
+              44,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              65,
+              99,
+              99,
+              195,
+              168,
+              115,
+              32,
+              114,
+              101,
+              102,
+              117,
+              115,
+              195,
+              169,
+              34,
+              125,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 10,
+          "responseSize": 57
+        },
+        "id": "f18846cb-bc37-4be5-a622-0ab16111679e",
+        "assertions": [
+          {
+            "assertion": "Le gestionnaire est refusé : HTTP 403",
+            "skipped": false
+          },
+          {
+            "assertion": "L’API renvoie une erreur structurée",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "afc743dd-a22c-4f76-900e-da73d9d6d268",
+          "length": 12,
+          "cycles": 1,
+          "position": 7,
+          "iteration": 0,
+          "httpRequestId": "4c83c199-c542-4232-bf49-8a0008dee7a2"
+        },
+        "item": {
+          "id": "f93df6f3-23bf-4074-841e-c13308e12512",
+          "name": "Connexion agent",
+          "request": {
+            "description": {
+              "content": "La réponse fournit un cookie de session et un jeton CSRF pour le compte agent.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "auth",
+                "login"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{agentEmail}}\",\"password\":\"{{demoPassword}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "3ae803d2-e878-4515-b6d5-d3db512c55bf",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Connexion agent : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"Le rôle retourné est agent\", function () { pm.expect(data.user.role).to.eql(\"agent\"); });",
+                  "pm.test(\"Le serveur fournit un jeton CSRF\", function () { pm.expect(data.csrfToken).to.be.a(\"string\").and.not.empty; });",
+                  "pm.test(\"Un cookie de session est fourni\", function () { pm.expect(pm.response.headers.has(\"Set-Cookie\")).to.eql(true); });"
+                ],
+                "_lastExecutionId": "7882568e-5bdf-4de5-80c8-845c2e88d7af"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "La réponse fournit un cookie de session et un jeton CSRF pour le compte agent.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "auth",
+              "login"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "cb9497c8-a841-41be-a44f-091a0d631ced",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "64",
+              "system": true
+            },
+            {
+              "key": "Cookie",
+              "value": "assurrec_session=e66BwxTZ6awE9qt7HGgMKeK0-TUloeQFurGMqaBJXl8",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"email\":\"agent@assurrec.demo\",\"password\":\"AssurRec-Demo-2026!\"}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "449c66b9-1c17-4f95-9d1f-cee6f7f72dde",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Server",
+              "value": "nginx/1.30.8"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Nov 2026 18:38:47 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "194"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Cross-Origin-Opener-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Cross-Origin-Resource-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Origin-Agent-Cluster",
+              "value": "?1"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-DNS-Prefetch-Control",
+              "value": "off"
+            },
+            {
+              "key": "X-Download-Options",
+              "value": "noopen"
+            },
+            {
+              "key": "X-Permitted-Cross-Domain-Policies",
+              "value": "none"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "0"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            },
+            {
+              "key": "RateLimit",
+              "value": "\"10-in-15min\"; r=7; t=900"
+            },
+            {
+              "key": "RateLimit-Policy",
+              "value": "\"10-in-15min\"; q=10; w=900; pk=:YjZkY2Q4MjA1MWE1:"
+            },
+            {
+              "key": "Set-Cookie",
+              "value": "assurrec_session=bmMGPez7fql_LnnZMJmUtbluKmLG4SYBoLYF0y24TPE; Max-Age=43200; Path=/; Expires=Fri, 27 Nov 2026 06:38:47 GMT; HttpOnly; SameSite=Lax"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"c2-CSXB0aOstkjhCNhZ9N4jXr6na3c\""
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              117,
+              115,
+              101,
+              114,
+              34,
+              58,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              51,
+              44,
+              34,
+              110,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              65,
+              103,
+              101,
+              110,
+              116,
+              32,
+              100,
+              195,
+              169,
+              109,
+              111,
+              34,
+              44,
+              34,
+              101,
+              109,
+              97,
+              105,
+              108,
+              34,
+              58,
+              34,
+              97,
+              103,
+              101,
+              110,
+              116,
+              64,
+              97,
+              115,
+              115,
+              117,
+              114,
+              114,
+              101,
+              99,
+              46,
+              100,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              114,
+              111,
+              108,
+              101,
+              34,
+              58,
+              34,
+              97,
+              103,
+              101,
+              110,
+              116,
+              34,
+              44,
+              34,
+              97,
+              99,
+              116,
+              105,
+              118,
+              101,
+              34,
+              58,
+              116,
+              114,
+              117,
+              101,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              50,
+              54,
+              84,
+              49,
+              54,
+              58,
+              53,
+              52,
+              58,
+              48,
+              55,
+              46,
+              48,
+              48,
+              48,
+              90,
+              34,
+              125,
+              44,
+              34,
+              99,
+              115,
+              114,
+              102,
+              84,
+              111,
+              107,
+              101,
+              110,
+              34,
+              58,
+              34,
+              113,
+              110,
+              99,
+              54,
+              101,
+              51,
+              95,
+              101,
+              53,
+              48,
+              106,
+              102,
+              82,
+              77,
+              48,
+              98,
+              90,
+              78,
+              81,
+              116,
+              95,
+              95,
+              55,
+              87,
+              45,
+              99,
+              102,
+              102,
+              80,
+              90,
+              106,
+              98,
+              90,
+              95,
+              89,
+              122,
+              95,
+              50,
+              75,
+              87,
+              75,
+              104,
+              69,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 97,
+          "responseSize": 194
+        },
+        "id": "f93df6f3-23bf-4074-841e-c13308e12512",
+        "assertions": [
+          {
+            "assertion": "Connexion agent : HTTP 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Le rôle retourné est agent",
+            "skipped": false
+          },
+          {
+            "assertion": "Le serveur fournit un jeton CSRF",
+            "skipped": false
+          },
+          {
+            "assertion": "Un cookie de session est fourni",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "f89eba28-e7c5-431c-9c96-40ac33c5dc1b",
+          "length": 12,
+          "cycles": 1,
+          "position": 8,
+          "iteration": 0,
+          "httpRequestId": "6f1d14cf-02c5-44fc-bd3e-54bb58e1c222"
+        },
+        "item": {
+          "id": "60c24e78-b997-4454-8ed7-9694d2d78d2f",
+          "name": "Session agent courante",
+          "request": {
+            "description": {
+              "content": "Vérifie que Postman réutilise le cookie du compte agent.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "auth",
+                "me"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "937b04ed-c429-49b5-b09b-6dca5760454a",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Session agent : HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"La session courante est agent\", function () { pm.expect(data.user.role).to.eql(\"agent\"); });"
+                ],
+                "_lastExecutionId": "09bf0c9e-49b4-451e-8c87-53934720a70c"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Vérifie que Postman réutilise le cookie du compte agent.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "auth",
+              "me"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "fae332d7-a3fd-4f2f-8874-c9941a896b2d",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Cookie",
+              "value": "assurrec_session=bmMGPez7fql_LnnZMJmUtbluKmLG4SYBoLYF0y24TPE",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "76b2793a-503c-41d9-b964-27fdc2deb750",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Server",
+              "value": "nginx/1.30.8"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Nov 2026 18:38:47 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "194"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Cross-Origin-Opener-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Cross-Origin-Resource-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Origin-Agent-Cluster",
+              "value": "?1"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-DNS-Prefetch-Control",
+              "value": "off"
+            },
+            {
+              "key": "X-Download-Options",
+              "value": "noopen"
+            },
+            {
+              "key": "X-Permitted-Cross-Domain-Policies",
+              "value": "none"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "0"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"c2-CSXB0aOstkjhCNhZ9N4jXr6na3c\""
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              117,
+              115,
+              101,
+              114,
+              34,
+              58,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              51,
+              44,
+              34,
+              110,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              65,
+              103,
+              101,
+              110,
+              116,
+              32,
+              100,
+              195,
+              169,
+              109,
+              111,
+              34,
+              44,
+              34,
+              101,
+              109,
+              97,
+              105,
+              108,
+              34,
+              58,
+              34,
+              97,
+              103,
+              101,
+              110,
+              116,
+              64,
+              97,
+              115,
+              115,
+              117,
+              114,
+              114,
+              101,
+              99,
+              46,
+              100,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              114,
+              111,
+              108,
+              101,
+              34,
+              58,
+              34,
+              97,
+              103,
+              101,
+              110,
+              116,
+              34,
+              44,
+              34,
+              97,
+              99,
+              116,
+              105,
+              118,
+              101,
+              34,
+              58,
+              116,
+              114,
+              117,
+              101,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              50,
+              54,
+              84,
+              49,
+              54,
+              58,
+              53,
+              52,
+              58,
+              48,
+              55,
+              46,
+              48,
+              48,
+              48,
+              90,
+              34,
+              125,
+              44,
+              34,
+              99,
+              115,
+              114,
+              102,
+              84,
+              111,
+              107,
+              101,
+              110,
+              34,
+              58,
+              34,
+              113,
+              110,
+              99,
+              54,
+              101,
+              51,
+              95,
+              101,
+              53,
+              48,
+              106,
+              102,
+              82,
+              77,
+              48,
+              98,
+              90,
+              78,
+              81,
+              116,
+              95,
+              95,
+              55,
+              87,
+              45,
+              99,
+              102,
+              102,
+              80,
+              90,
+              106,
+              98,
+              90,
+              95,
+              89,
+              122,
+              95,
+              50,
+              75,
+              87,
+              75,
+              104,
+              69,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 15,
+          "responseSize": 194
+        },
+        "id": "60c24e78-b997-4454-8ed7-9694d2d78d2f",
+        "assertions": [
+          {
+            "assertion": "Session agent : HTTP 200",
+            "skipped": false
+          },
+          {
+            "assertion": "La session courante est agent",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "9b259f06-c65d-4b97-a51c-52b3d65dc246",
+          "length": 12,
+          "cycles": 1,
+          "position": 9,
+          "iteration": 0,
+          "httpRequestId": "d386dc90-25db-4d0d-8066-3a8bbc92a3f0"
+        },
+        "item": {
+          "id": "54970122-2a18-4684-9888-50557fa1414c",
+          "name": "Agent — ne peut pas consulter la liste des utilisateurs",
+          "request": {
+            "description": {
+              "content": "Contrôle négatif : l’agent doit recevoir 403 sur l’endpoint d’administration.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "users"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "ec735126-7343-4547-b418-206b760f02f2",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"L’agent est refusé : HTTP 403\", function () { pm.response.to.have.status(403); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"L’API renvoie une erreur structurée\", function () { pm.expect(data.error.code).to.be.a(\"string\"); pm.expect(data.error.message).to.be.a(\"string\"); });"
+                ],
+                "_lastExecutionId": "096505aa-4d03-40e4-a741-02c49f5c5047"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Contrôle négatif : l’agent doit recevoir 403 sur l’endpoint d’administration.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "users"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [
+              {
+                "key": "page",
+                "value": "1"
+              },
+              {
+                "key": "pageSize",
+                "value": "10"
+              }
+            ],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "15db5d70-7690-48ca-8f87-b4bed367a2ec",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Cookie",
+              "value": "assurrec_session=bmMGPez7fql_LnnZMJmUtbluKmLG4SYBoLYF0y24TPE",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "ffa1b176-e9e4-464b-a3d1-fa10bcdc0f02",
+          "status": "Forbidden",
+          "code": 403,
+          "header": [
+            {
+              "key": "Server",
+              "value": "nginx/1.30.8"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Nov 2026 18:38:47 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "57"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Cross-Origin-Opener-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Cross-Origin-Resource-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Origin-Agent-Cluster",
+              "value": "?1"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-DNS-Prefetch-Control",
+              "value": "off"
+            },
+            {
+              "key": "X-Download-Options",
+              "value": "noopen"
+            },
+            {
+              "key": "X-Permitted-Cross-Domain-Policies",
+              "value": "none"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "0"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"39-toUy4VmjucudOErrxw2BYJW/FoM\""
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              123,
+              34,
+              99,
+              111,
+              100,
+              101,
+              34,
+              58,
+              34,
+              70,
+              79,
+              82,
+              66,
+              73,
+              68,
+              68,
+              69,
+              78,
+              34,
+              44,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              65,
+              99,
+              99,
+              195,
+              168,
+              115,
+              32,
+              114,
+              101,
+              102,
+              117,
+              115,
+              195,
+              169,
+              34,
+              125,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 37,
+          "responseSize": 57
+        },
+        "id": "54970122-2a18-4684-9888-50557fa1414c",
+        "assertions": [
+          {
+            "assertion": "L’agent est refusé : HTTP 403",
+            "skipped": false
+          },
+          {
+            "assertion": "L’API renvoie une erreur structurée",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "1c0740ac-11ad-4c4a-a09c-cd89f1043a8b",
+          "length": 12,
+          "cycles": 1,
+          "position": 10,
+          "iteration": 0,
+          "httpRequestId": "6392ea50-b7c2-440b-ba64-ca1a2ad48bf5"
+        },
+        "item": {
+          "id": "b67a8bb6-a35f-4d81-83f8-549f55da2ede",
+          "name": "Connexion — mot de passe incorrect",
+          "request": {
+            "description": {
+              "content": "Le mot de passe de test volontairement incorrect est une variable, pas le vrai secret du compte.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "auth",
+                "login"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{adminEmail}}\",\"password\":\"{{invalidPassword}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "089b84a7-ff96-4168-b9b9-516f911a56a9",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Identifiants invalides : HTTP 401\", function () { pm.response.to.have.status(401); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"L’erreur ne révèle pas si l’e-mail existe\", function () { pm.expect(data.error.code).to.eql(\"INVALID_CREDENTIALS\"); pm.expect(data.error.message).to.eql(\"E-mail ou mot de passe incorrect.\"); });"
+                ],
+                "_lastExecutionId": "3d1f9842-19c4-4cde-adb6-6605b84505ea"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Le mot de passe de test volontairement incorrect est une variable, pas le vrai secret du compte.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "auth",
+              "login"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "bade8c2a-831c-444a-b630-5b3782150046",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "69",
+              "system": true
+            },
+            {
+              "key": "Cookie",
+              "value": "assurrec_session=bmMGPez7fql_LnnZMJmUtbluKmLG4SYBoLYF0y24TPE",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"email\":\"admin@assurrec.demo\",\"password\":\"MotDePasseIncorrect-Test\"}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "6cd6ca83-90d0-44bb-82e1-f28f1794d739",
+          "status": "Unauthorized",
+          "code": 401,
+          "header": [
+            {
+              "key": "Server",
+              "value": "nginx/1.30.8"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Nov 2026 18:38:47 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "86"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Cross-Origin-Opener-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Cross-Origin-Resource-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Origin-Agent-Cluster",
+              "value": "?1"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-DNS-Prefetch-Control",
+              "value": "off"
+            },
+            {
+              "key": "X-Download-Options",
+              "value": "noopen"
+            },
+            {
+              "key": "X-Permitted-Cross-Domain-Policies",
+              "value": "none"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "0"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            },
+            {
+              "key": "RateLimit",
+              "value": "\"10-in-15min\"; r=6; t=899"
+            },
+            {
+              "key": "RateLimit-Policy",
+              "value": "\"10-in-15min\"; q=10; w=900; pk=:YjZkY2Q4MjA1MWE1:"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"56-eRVKZWYFsGFLD10VS09ZULAXqB8\""
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              123,
+              34,
+              99,
+              111,
+              100,
+              101,
+              34,
+              58,
+              34,
+              73,
+              78,
+              86,
+              65,
+              76,
+              73,
+              68,
+              95,
+              67,
+              82,
+              69,
+              68,
+              69,
+              78,
+              84,
+              73,
+              65,
+              76,
+              83,
+              34,
+              44,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              69,
+              45,
+              109,
+              97,
+              105,
+              108,
+              32,
+              111,
+              117,
+              32,
+              109,
+              111,
+              116,
+              32,
+              100,
+              101,
+              32,
+              112,
+              97,
+              115,
+              115,
+              101,
+              32,
+              105,
+              110,
+              99,
+              111,
+              114,
+              114,
+              101,
+              99,
+              116,
+              46,
+              34,
+              125,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 161,
+          "responseSize": 86
+        },
+        "id": "b67a8bb6-a35f-4d81-83f8-549f55da2ede",
+        "assertions": [
+          {
+            "assertion": "Identifiants invalides : HTTP 401",
+            "skipped": false
+          },
+          {
+            "assertion": "L’erreur ne révèle pas si l’e-mail existe",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "d958b056-bf9d-400b-a6e6-2f795945ba05",
+          "length": 12,
+          "cycles": 1,
+          "position": 11,
+          "iteration": 0,
+          "httpRequestId": "bb1383db-80e2-4f01-ac8d-8ae310c3d4cf"
+        },
+        "item": {
+          "id": "ccc1fd18-b085-48c6-95c1-4198d2f53ecd",
+          "name": "L’inscription publique est absente",
+          "request": {
+            "description": {
+              "content": "Contrôle que POST /auth/register n’est pas exposé ; la réponse attendue est 404 NOT_FOUND.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "auth",
+                "register"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "01dca4f5-111f-49f2-a36a-dfbcd4c32450",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Aucune route d’inscription publique : HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "var data = pm.response.json();",
+                  "pm.test(\"La route est signalée comme introuvable\", function () { pm.expect(data.error.code).to.eql(\"NOT_FOUND\"); });"
+                ],
+                "_lastExecutionId": "a2893a62-0f6d-48e6-af00-14a3a1f21fa8"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Contrôle que POST /auth/register n’est pas exposé ; la réponse attendue est 404 NOT_FOUND.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "auth",
+              "register"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "f146bee8-9e38-407d-9189-ebc4aa156277",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "2",
+              "system": true
+            },
+            {
+              "key": "Cookie",
+              "value": "assurrec_session=bmMGPez7fql_LnnZMJmUtbluKmLG4SYBoLYF0y24TPE",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "8f0f95cb-5a4e-4391-9af6-0da3198b4461",
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "Server",
+              "value": "nginx/1.30.8"
+            },
+            {
+              "key": "Date",
+              "value": "Thu, 26 Nov 2026 18:38:47 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "65"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Cross-Origin-Opener-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Cross-Origin-Resource-Policy",
+              "value": "same-origin"
+            },
+            {
+              "key": "Origin-Agent-Cluster",
+              "value": "?1"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer"
+            },
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=31536000; includeSubDomains"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-DNS-Prefetch-Control",
+              "value": "off"
+            },
+            {
+              "key": "X-Download-Options",
+              "value": "noopen"
+            },
+            {
+              "key": "X-Permitted-Cross-Domain-Policies",
+              "value": "none"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "0"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-store"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"41-QblLUli9sQ/yzhYp8HCk8G+tEmg\""
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              123,
+              34,
+              99,
+              111,
+              100,
+              101,
+              34,
+              58,
+              34,
+              78,
+              79,
+              84,
+              95,
+              70,
+              79,
+              85,
+              78,
+              68,
+              34,
+              44,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              82,
+              111,
+              117,
+              116,
+              101,
+              32,
+              65,
+              80,
+              73,
+              32,
+              105,
+              110,
+              116,
+              114,
+              111,
+              117,
+              118,
+              97,
+              98,
+              108,
+              101,
+              46,
+              34,
+              125,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 15,
+          "responseSize": 65
+        },
+        "id": "ccc1fd18-b085-48c6-95c1-4198d2f53ecd",
+        "assertions": [
+          {
+            "assertion": "Aucune route d’inscription publique : HTTP 404",
+            "skipped": false
+          },
+          {
+            "assertion": "La route est signalée comme introuvable",
+            "skipped": false
+          }
+        ]
+      }
+    ],
+    "transfers": {
+      "responseTotal": 2110
+    },
+    "failures": [],
+    "error": null
+  }
+}
